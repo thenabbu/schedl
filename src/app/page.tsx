@@ -1,73 +1,56 @@
-// pages/index.tsx
-'use client';
+// src/app/page.tsx
+"use client"
+import React from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker"
 
-export default function HomePage() {
-  const [num1, setNum1] = useState<number | "">("");
-  const [num2, setNum2] = useState<number | "">("");
-  const [results, setResults] = useState<null | {
-    addition: number;
-    subtraction: number;
-    multiplication: number;
-    division: string;
-  }>(null);
 
-  const calculate = () => {
-    const a = Number(num1);
-    const b = Number(num2);
+import PlannerLayout from "@/components/plannerLayout";
 
-    setResults({
-      addition: a + b,
-      subtraction: a - b,
-      multiplication: a * b,
-      division: b !== 0 ? (a / b).toFixed(2) : "Cannot divide by 0",
-    });
-  };
+export default function Home() {
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [range, setRange] = React.useState<DateRange | undefined>({
+    from: new Date(),
+    to: undefined,
+  })
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
-      <Card className="w-full max-w-md shadow-2xl p-6 rounded-2xl animate-fade-in">
-        <CardContent className="space-y-6">
-          <h1 className="text-3xl font-bold text-center tracking-tight">🧮 Simple Calculator</h1>
+    <PlannerLayout>
+      <div
+        className="
+          w-full h-full         /* fill the padded wrapper */
+          grid
+          gap-[1.25vmin]            /* inner gutters = 2vmin */
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              type="number"
-              placeholder="First Number"
-              value={num1}
-              onChange={(e) => setNum1(e.target.value === "" ? "" : Number(e.target.value))}
-            />
-            <Input
-              type="number"
-              placeholder="Second Number"
-              value={num2}
-              onChange={(e) => setNum2(e.target.value === "" ? "" : Number(e.target.value))}
-            />
-          </div>
+          /* Mobile: stack */
+          grid-cols-1
+          grid-rows-[auto_auto_auto]
 
-          <Button
-            onClick={calculate}
-            className="w-full"
-            disabled={num1 === "" || num2 === ""}
-          >
-            Calculate
-          </Button>
+          /* ≥sm: 25%/75% × 66.667%/33.333% */
+          sm:grid-cols-[25%_75%]
+          sm:grid-rows-[90%_10%]
+        "
+      >
+        <Card className="col-start-1 row-start-1">
+        <Calendar
+        mode="range"
+        selected={range}
+        onSelect={setRange}
+        className="rounded-md border"
+      />
+        </Card>
 
-          {results && (
-            <div className="space-y-2 mt-4">
-              <h2 className="text-xl font-semibold">Results</h2>
-              <p className="text-muted-foreground">➕ Addition: {results.addition}</p>
-              <p className="text-muted-foreground">➖ Subtraction: {results.subtraction}</p>
-              <p className="text-muted-foreground">✖️ Multiplication: {results.multiplication}</p>
-              <p className="text-muted-foreground">➗ Division: {results.division}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </main>
+        <Card className="col-start-1 row-start-2">
+          {/* User Info */}
+          </Card>
+
+        <Card className="col-start-2 row-start-1 row-span-2">
+          {/* Groups & Polls */}
+        </Card>
+
+      </div>
+    </PlannerLayout>
   );
 }
