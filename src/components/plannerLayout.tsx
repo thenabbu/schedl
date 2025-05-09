@@ -8,7 +8,7 @@ export default function PlannerLayout({ children }: { children: React.ReactNode 
         box-border
 
         pt-[1vmin] pl-[1vmin]        /* outer margin top/left */
-        pr-[2vmin] pb-[2vmin]        /* outer margin right/bottom = 1vmin + 2vmin inner gap */
+        pr-[1vmin] pb-[1vmin]        /* outer margin right/bottom = 1vmin + 2vmin inner gap */
       "
     >
       {children}
