@@ -1,12 +1,12 @@
 "use client";
 
-// Import necessary libraries and components
-import React, { useMemo, useState, useEffect } from "react";
+// ===== IMPORTS =====
+import { useMemo, useState, useEffect } from "react";
 import { createAvatar } from "@dicebear/core";
-import { glass } from "@dicebear/collection";
+import { glass, shapes } from "@dicebear/collection";
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import Image from "next/image";
+import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { addDays, eachDayOfInterval, isSameDay, format } from "date-fns";
@@ -19,9 +19,10 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DateRange } from "react-day-picker";
+import { Badge } from "@/components/ui/badge";
 import PlannerLayout from "@/components/plannerLayout";
 
-// Date picker component for selecting a range of dates
+// ===== COMPONENT: DatePickerWithRange =====
 function DatePickerWithRange({
   date,
   setDate,
@@ -65,48 +66,170 @@ function DatePickerWithRange({
   );
 }
 
-// Type definitions for date range and user
-type Range = { title: string; from: Date; to: Date };
+// ===== TYPE DEFINITIONS =====
+type Range = { from: Date; to: Date };
 type User = { username: string; name: string };
-
-// Utility function to create a date range with a title
-function createRange(input: Partial<Range> & { from: Date; to: Date }): Range {
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const diff = input.to.getTime() - input.from.getTime();
-  const days = Math.ceil(diff / msPerDay) + 1;
-  const paddedDays = days < 10 ? `0${days}` : `${days}`;
-  const title = `${paddedDays}`;
-
-  return { title, from: input.from, to: input.to };
+const enum GroupStatus {
+  Planned = 2,
+  Planning = 1,
+  AtRest = 0,
 }
+type Group = { name: string; status: GroupStatus; members: string[] };
 
-// Main component for the planner application
+// ===== FUNCTION: Generate Avatar URI for Groups =====
+const generateGroupAvatar = (groupName: string): string => {
+  const avatar = createAvatar(shapes, { seed: groupName });
+  return avatar.toDataUri();
+};
+
+// ===== MAIN COMPONENT: Home =====
 export default function Home() {
-  // State to manage date ranges
+  // Busy date ranges state
   const [dateRanges, setDateRanges] = useState<Range[]>([
-    createRange({ from: new Date(2025, 3, 25), to: new Date(2025, 4, 8) }),
-    createRange({
-      title: "ghumi ghumi",
-      from: new Date(2025, 4, 18),
-      to: new Date(2025, 4, 29),
-    }),
-    createRange({ from: new Date(2025, 5, 8), to: new Date(2025, 5, 14) }),
+    { from: new Date(2025, 3, 25), to: new Date(2025, 4, 8) },
+    { from: new Date(2025, 4, 18), to: new Date(2025, 4, 29) },
+    { from: new Date(2025, 5, 8), to: new Date(2025, 5, 14) },
   ]);
 
-  // User information
+  const groups: Group[] = [
+    {
+      name: "Mountain Hikers",
+      status: GroupStatus.Planned,
+      members: ["alice", "bob", "carol", "dave", "eve"],
+    },
+    {
+      name: "Late-Night Coders",
+      status: GroupStatus.Planning,
+      members: ["frank", "grace", "heidi", "ivan", "judy", "mallory"],
+    },
+    {
+      name: "Movie Marathon",
+      status: GroupStatus.AtRest,
+      members: ["nick", "oscar", "peggy"],
+    },
+    {
+      name: "Weekend Cyclists",
+      status: GroupStatus.Planned,
+      members: [
+        "alice",
+        "frank",
+        "trent",
+        "victor",
+        "wendy",
+        "rachel",
+        "carol",
+      ],
+    },
+    {
+      name: "Board Game Night",
+      status: GroupStatus.Planning,
+      members: ["dave", "eve", "grace", "heidi", "nick"],
+    },
+    {
+      name: "Book Club",
+      status: GroupStatus.AtRest,
+      members: ["oscar", "peggy", "quentin", "rachel"],
+    },
+    {
+      name: "Coffee Enthusiasts",
+      status: GroupStatus.Planned,
+      members: [
+        "sybil",
+        "trent",
+        "judy",
+        "alice",
+        "bob",
+        "mallory",
+        "victor",
+        "wendy",
+      ],
+    },
+    {
+      name: "Weekend Warriors",
+      status: GroupStatus.Planning,
+      members: ["nick", "oscar", "frank", "grace", "heidi", "trent", "carol"],
+    },
+    {
+      name: "Art & Crafts",
+      status: GroupStatus.AtRest,
+      members: ["peggy", "quentin", "rachel", "sybil", "judy", "dave"],
+    },
+    {
+      name: "Startup Founders",
+      status: GroupStatus.Planned,
+      members: [
+        "alice",
+        "bob",
+        "carol",
+        "dave",
+        "eve",
+        "frank",
+        "grace",
+        "heidi",
+        "ivan",
+      ],
+    },
+    {
+      name: "Yoga Retreat",
+      status: GroupStatus.Planning,
+      members: [
+        "judy",
+        "mallory",
+        "nick",
+        "oscar",
+        "peggy",
+        "trent",
+        "rachel",
+        "sybil",
+      ],
+    },
+    {
+      name: "Language Exchange",
+      status: GroupStatus.AtRest,
+      members: ["trent", "victor", "wendy", "alice", "bob"],
+    },
+    {
+      name: "Game Dev Jam",
+      status: GroupStatus.Planned,
+      members: [
+        "carol",
+        "dave",
+        "eve",
+        "frank",
+        "grace",
+        "heidi",
+        "ivan",
+        "judy",
+        "nick",
+        "oscar",
+        "peggy",
+        "quentin",
+      ],
+    },
+    {
+      name: "Photography Walk",
+      status: GroupStatus.Planning,
+      members: ["rachel", "sybil", "trent", "victor", "wendy"],
+    },
+    {
+      name: "Cooking Challenge",
+      status: GroupStatus.AtRest,
+      members: ["alice", "bob", "carol", "dave", "eve", "frank"],
+    },
+  ];
+
+  // User information state
   const user: User = { username: "nabbu", name: "Navya Gupta" };
   const { username, name } = user;
 
-  // State for avatar URI
+  // Avatar generation state
   const [avatarUri, setAvatarUri] = useState<string>("");
-
-  // Generate avatar based on username
   useEffect(() => {
     const avatar = createAvatar(glass, { seed: username });
     setAvatarUri(avatar.toDataUri());
   }, [username]);
 
-  // Precompute selected days for the calendar
+  // Precompute busy days from ranges
   const preselectedDays: Date[] = useMemo(
     () =>
       dateRanges.flatMap((rng) =>
@@ -115,7 +238,7 @@ export default function Home() {
     [dateRanges]
   );
 
-  // Compute start and end dates for highlighting in the calendar
+  // Calculate calendar modifiers for start and end dates
   const { startDates, endDates } = useMemo(() => {
     const starts: Date[] = [];
     const ends: Date[] = [];
@@ -128,13 +251,13 @@ export default function Home() {
     return { startDates: starts, endDates: ends };
   }, [preselectedDays]);
 
-  // State for dialog form
+  // State for date range picker dialog
   const [open, setOpen] = useState(false);
-  const [inputTitle, setInputTitle] = useState("");
   const [busyRange, setBusyRange] = useState<DateRange | undefined>(undefined);
+  const [editingRange, setEditingRange] = useState<Range | null>(null);
 
-  // Handle saving a new busy date range
-  let handleSave = () => {
+  // ===== FUNCTION: Save Busy Date Range =====
+  const handleSave = () => {
     if (!busyRange?.from || !busyRange.to) {
       alert("Please select a valid date range.");
       return;
@@ -143,18 +266,26 @@ export default function Home() {
       alert("'From' date must be on or before 'To' date.");
       return;
     }
-    const newRange = createRange({
-      title: inputTitle,
-      from: busyRange.from,
-      to: busyRange.to,
-    });
-    setDateRanges((prev) => [...prev, newRange]);
+    if (editingRange) {
+      const updatedRange: Range = { from: busyRange.from, to: busyRange.to };
+      setDateRanges((prev) =>
+        prev.map((rng) =>
+          rng.from.getTime() === editingRange.from.getTime() &&
+          rng.to.getTime() === editingRange.to.getTime()
+            ? updatedRange
+            : rng
+        )
+      );
+    } else {
+      const newRange: Range = { from: busyRange.from, to: busyRange.to };
+      setDateRanges((prev) => [...prev, newRange]);
+    }
     setOpen(false);
-    setInputTitle("");
     setBusyRange(undefined);
+    setEditingRange(null);
   };
 
-  // Function to handle deleting a date range
+  // ===== FUNCTION: Delete a Busy Date Range =====
   const handleDelete = (rangeToDelete: Range) => {
     setDateRanges((prev) =>
       prev.filter(
@@ -165,53 +296,20 @@ export default function Home() {
     );
   };
 
-  // Function to handle editing a date range
+  // ===== FUNCTION: Initiate Edit on a Busy Date Range =====
   const handleEdit = (rangeToEdit: Range) => {
-    setInputTitle(rangeToEdit.title);
     setBusyRange({ from: rangeToEdit.from, to: rangeToEdit.to });
+    setEditingRange(rangeToEdit);
     setOpen(true);
-
-    // When saving, replace the edited range
-    const saveEditedRange = () => {
-      if (!busyRange?.from || !busyRange.to) {
-        alert("Please select a valid date range.");
-        return;
-      }
-      if (busyRange.from > busyRange.to) {
-        alert("'From' date must be on or before 'To' date.");
-        return;
-      }
-      const updatedRange = createRange({
-        title: inputTitle,
-        from: busyRange.from,
-        to: busyRange.to,
-      });
-
-      setDateRanges((prev) =>
-        prev.map((rng) =>
-          rng.from.getTime() === rangeToEdit.from.getTime() &&
-          rng.to.getTime() === rangeToEdit.to.getTime()
-            ? updatedRange
-            : rng
-        )
-      );
-      setOpen(false);
-      setInputTitle("");
-      setBusyRange(undefined);
-    };
-
-    // Override the save handler temporarily
-    handleSave = saveEditedRange;
   };
 
+  // ===== RENDER COMPONENT =====
   return (
     <PlannerLayout>
-      {/* Main layout with grid structure */}
       <div className="w-full h-full grid gap-2 grid-cols-1 md:grid-cols-[0.8fr_2.4fr_0.8fr] grid-rows-[auto_auto] md:grid-rows-[1fr_1fr]">
-        {/* Left panel with calendar and busy days dialog */}
+        {/* Calendar and Busy Dates Panel */}
         <Card className="col-span-1 md:col-start-1 md:row-start-1 w-full max-w-md mx-auto p-0">
           <div className="rounded-md w-auto max-w-md mx-auto mt-2">
-            {/* Calendar with highlighted busy days */}
             <Calendar
               className="rounded-md w-full flex justify-center"
               mode="multiple"
@@ -228,7 +326,6 @@ export default function Home() {
               }}
             />
 
-            {/* Popover for adding busy days */}
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -238,80 +335,74 @@ export default function Home() {
                   <Plus /> Busy Days
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <div className="grid gap-4">
-                  {/* Date range picker - directly shown */}
-                  <div className="p-4">
-                    <DatePickerWithRange
-                      date={busyRange}
-                      setDate={setBusyRange}
-                    />
-                  </div>
-
-                  {/* Save Button */}
-                  <div className="border-t p-4 flex justify-end">
+              <PopoverContent className="ml-3 p-0 w-94">
+                <div className="grid">
+                  <div className="border-t p-4 flex">
                     <Button type="button" onClick={handleSave}>
                       Save
                     </Button>
+                    <Separator orientation="vertical" className="mx-2" />
+                    <span className="w-65">
+                      <DatePickerWithRange
+                        date={busyRange}
+                        setDate={setBusyRange}
+                      />
+                    </span>
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
 
-            {/* List of busy date ranges */}
             <ScrollArea className="w-full h-[16.125rem] mt-2 font-mono">
-              {dateRanges.map((rng) => (
-                <Card
-                  key={`${rng.from.toISOString()}-${rng.to.toISOString()}`}
-                  className="relative group overflow-hidden mb-2 border w-full h-10 p-0"
-                >
-                  {/* Section: Display of title and date range */}
-                  <div className="flex w-full h-full transition-opacity duration-300 group-hover:opacity-0">
-                    <div className="w-[15%] h-full flex items-center justify-center bg-foreground text-background">
-                      {rng.title}
-                    </div>
-                    <div className="w-[85%] h-full flex items-center justify-center text-muted-foreground text-sm transition-opacity duration-300">
-                      {format(rng.from, "dd MMM").toUpperCase()} –{" "}
-                      {format(rng.to, "dd MMM").toUpperCase()}
-                    </div>
-                  </div>
+              {dateRanges.map((rng) => {
+                const msPerDay = 1000 * 60 * 60 * 24;
+                const diff = rng.to.getTime() - rng.from.getTime();
+                const days = Math.ceil(diff / msPerDay) + 1;
+                const paddedDays = days < 10 ? `0${days}` : `${days}`;
 
-                  {/* Section: Hover overlay with Edit and Delete actions */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
-                    <Button
-                      className="flex-1 h-full rounded-none gap-2"
-                      onClick={() => handleEdit(rng)}
-                    >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1 h-full rounded-none"
-                      onClick={() => handleDelete(rng)}
-                    >
-                      <Trash className="h-4 w-4" />
-                      Delete
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                return (
+                  <Card
+                    key={`${rng.from.toISOString()}-${rng.to.toISOString()}`}
+                    className="relative group overflow-hidden mb-2 border w-full h-10 p-0"
+                  >
+                    <div className="flex w-full h-full transition-opacity duration-300 group-hover:opacity-0">
+                      <div className="w-[15%] h-full flex items-center justify-center bg-foreground text-background">
+                        {paddedDays}
+                      </div>
+                      <div className="w-[85%] h-full flex items-center justify-center text-muted-foreground text-sm transition-opacity duration-300">
+                        {format(rng.from, "dd MMM").toUpperCase()} –{" "}
+                        {format(rng.to, "dd MMM").toUpperCase()}
+                      </div>
+                    </div>
+
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+                      <Button
+                        className="flex-1 h-full rounded-none gap-2"
+                        onClick={() => handleEdit(rng)}
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex-1 h-full rounded-none"
+                        onClick={() => handleDelete(rng)}
+                      >
+                        <Trash className="h-4 w-4" />
+                        Delete
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
             </ScrollArea>
           </div>
         </Card>
 
-        {/* Profile Card */}
+        {/* User Information Panel */}
         <Card className="col-span-1 md:col-start-1 md:row-start-2 h-full p-3 overflow-hidden">
           <div className="flex items-center gap-2">
-            {/* Avatar */}
-            <Avatar
-              className="
-        w-[clamp(1.5rem,5vw,2.5rem)]
-        h-[clamp(1.5rem,5vw,2.5rem)]
-        flex-shrink-0
-        rounded-full
-      "
-            >
+            <Avatar className="w-[clamp(1.5rem,5vw,2.5rem)] h-[clamp(1.5rem,5vw,2.5rem)] flex-shrink-0 rounded-full">
               {avatarUri ? (
                 <AvatarImage
                   src={avatarUri}
@@ -327,26 +418,112 @@ export default function Home() {
               )}
             </Avatar>
 
-            {/* Name + Username */}
             <div className="flex-1 min-w-0">
-              <p className="font-semibold truncate text-[clamp(0.6rem,2vw,1rem)]">{name}</p>
-              <p className="truncate text-gray-500 text-[clamp(0.2rem, 1vw, 0.4rem)]">@{username}</p>
+              <p className="font-semibold truncate text-[clamp(0.6rem,2vw,1rem)]">
+                {name}
+              </p>
+              <p className="truncate text-gray-500 text-[clamp(0.2rem, 1vw, 0.4rem)]">
+                @{username}
+              </p>
             </div>
 
-            {/* Settings Icon */}
             <Button variant="ghost" size="icon">
               <Settings />
             </Button>
           </div>
         </Card>
 
-        {/* Placeholder for groups and polls */}
+        {/* Main Content Panel */}
         <Card className="col-span-1 md:col-start-2 md:row-start-1 md:row-span-2 h-full p-4 overflow-auto">
-          {/* Groups & Polls */}
+          {/* Groups & Polls can be added here */}
         </Card>
 
-        {/* Placeholder for additional content */}
-        <Card className="col-span-1 md:col-start-3 md:row-start-1 md:row-span-2 h-full p-4 overflow-auto"></Card>
+        {/* Planning Status Panel */}
+        <Card className="col-span-1 md:col-start-3 md:row-start-1 md:row-span-2 h-full p-2 flex flex-col gap-4">
+          <div className="flex flex-col">
+            <Badge
+              variant="secondary"
+              className="px-1.5 py-1 w-20 font-medium font-mono self-center"
+            >
+              PLANNED
+            </Badge>
+            <ScrollArea className="mt-2 h-40 overflow-auto">
+              {groups
+                .filter((group) => group.status === GroupStatus.Planned)
+                .map((group) => (
+                  <div key={group.name} className="p-2 flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage
+                        src={generateGroupAvatar(group.name)}
+                        alt={`${group.name} avatar`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>
+                        {group.name[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">{group.name}</span>
+                  </div>
+                ))}
+            </ScrollArea>
+          </div>
+
+          <div className="flex flex-col">
+            <Badge
+              variant="secondary"
+              className="px-1.5 py-1 w-20 font-medium font-mono self-center"
+            >
+              PLANNING
+            </Badge>
+            <ScrollArea className="mt-2 h-40 overflow-auto">
+              {groups
+                .filter((group) => group.status === GroupStatus.Planning)
+                .map((group) => (
+                  <div key={group.name} className="p-2 flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage
+                        src={generateGroupAvatar(group.name)}
+                        alt={`${group.name} avatar`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>
+                        {group.name[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">{group.name}</span>
+                  </div>
+                ))}
+            </ScrollArea>
+          </div>
+
+          <div className="flex flex-col">
+            <Badge
+              variant="secondary"
+              className="px-1.5 py-1 w-20 font-medium font-mono self-center"
+            >
+              AT REST
+            </Badge>
+            <ScrollArea className="mt-2 h-40 overflow-auto">
+              {groups
+                .filter((group) => group.status === GroupStatus.AtRest)
+                .map((group) => (
+                  <div key={group.name} className="p-2 flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage
+                        src={generateGroupAvatar(group.name)}
+                        alt={`${group.name} avatar`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>
+                        {group.name[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">{group.name}</span>
+                  </div>
+                ))}
+            </ScrollArea>
+          </div>
+        </Card>
       </div>
     </PlannerLayout>
   );
