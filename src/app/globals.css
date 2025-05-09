@@ -9,7 +9,6 @@ html, body, #__next {
   height: 100%;
 }
 
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
